@@ -36,17 +36,27 @@ def reverse_geocode(lat, lng, api_key):
             data = response.json()
             address = data.get('address', {})
             
-            # Extract commune information (can be in different fields)
+            # Extract commune information - prioritize most appropriate fields
+            # Municipality is usually the most accurate for commune
+            # Then town, then city, then district as fallbacks
             commune = (
-                address.get('suburb') or 
-                address.get('neighbourhood') or 
-                address.get('quarter') or 
-                address.get('district') or 
+                address.get('municipality') or 
                 address.get('town') or 
                 address.get('city') or 
-                address.get('municipality') or 
+                address.get('district') or 
                 'Unknown'
             )
+            
+            # Store all available address components for better analysis
+            address_components = {
+                'municipality': address.get('municipality'),
+                'town': address.get('town'), 
+                'city': address.get('city'),
+                'district': address.get('district'),
+                'suburb': address.get('suburb'),
+                'neighbourhood': address.get('neighbourhood'),
+                'quarter': address.get('quarter')
+            }
             
             # Get full display name
             display_name = data.get('display_name', 'Unknown Address')
@@ -58,6 +68,11 @@ def reverse_geocode(lat, lng, api_key):
                 'state': address.get('state', ''),
                 'city': address.get('city', ''),
                 'postcode': address.get('postcode', ''),
+                'municipality': address.get('municipality', ''),
+                'town': address.get('town', ''),
+                'district': address.get('district', ''),
+                'suburb': address.get('suburb', ''),
+                'address_debug': str(address_components),
                 'status': 'success'
             }
         else:
@@ -68,6 +83,11 @@ def reverse_geocode(lat, lng, api_key):
                 'state': '',
                 'city': '',
                 'postcode': '',
+                'municipality': '',
+                'town': '',
+                'district': '',
+                'suburb': '',
+                'address_debug': '',
                 'status': 'error'
             }
             
@@ -79,6 +99,11 @@ def reverse_geocode(lat, lng, api_key):
             'state': '',
             'city': '',
             'postcode': '',
+            'municipality': '',
+            'town': '',
+            'district': '',
+            'suburb': '',
+            'address_debug': '',
             'status': 'error'
         }
     except Exception as e:
@@ -89,6 +114,11 @@ def reverse_geocode(lat, lng, api_key):
             'state': '',
             'city': '',
             'postcode': '',
+            'municipality': '',
+            'town': '',
+            'district': '',
+            'suburb': '',
+            'address_debug': '',
             'status': 'error'
         }
 
@@ -125,6 +155,11 @@ def process_excel_file(df, lat_col, lng_col, progress_bar, status_text):
     processed_data['state'] = ''
     processed_data['city'] = ''
     processed_data['postcode'] = ''
+    processed_data['municipality'] = ''
+    processed_data['town'] = ''
+    processed_data['district'] = ''
+    processed_data['suburb'] = ''
+    processed_data['address_debug'] = ''
     processed_data['geocoding_status'] = ''
     
     total_rows = len(df)
@@ -156,6 +191,11 @@ def process_excel_file(df, lat_col, lng_col, progress_bar, status_text):
             processed_data.at[idx, 'state'] = location_info['state']
             processed_data.at[idx, 'city'] = location_info['city']
             processed_data.at[idx, 'postcode'] = location_info['postcode']
+            processed_data.at[idx, 'municipality'] = location_info['municipality']
+            processed_data.at[idx, 'town'] = location_info['town']
+            processed_data.at[idx, 'district'] = location_info['district']
+            processed_data.at[idx, 'suburb'] = location_info['suburb']
+            processed_data.at[idx, 'address_debug'] = location_info['address_debug']
             processed_data.at[idx, 'geocoding_status'] = location_info['status']
             
             if location_info['status'] == 'success':
@@ -309,7 +349,7 @@ def main():
                     st.subheader("📋 Processed Data Preview")
                     
                     # Show only new columns by default
-                    new_columns = ['commune', 'full_address', 'country', 'state', 'city', 'postcode', 'geocoding_status']
+                    new_columns = ['commune', 'municipality', 'town', 'district', 'suburb', 'full_address', 'country', 'state', 'city', 'postcode', 'address_debug', 'geocoding_status']
                     preview_columns = [lat_col, lng_col] + new_columns
                     available_preview_columns = [col for col in preview_columns if col in processed_df.columns]
                     
@@ -334,7 +374,7 @@ def main():
         st.subheader("Select Columns to Export")
         
         # Organize columns
-        new_location_columns = ['commune', 'full_address', 'country', 'state', 'city', 'postcode', 'geocoding_status']
+        new_location_columns = ['commune', 'municipality', 'town', 'district', 'suburb', 'full_address', 'country', 'state', 'city', 'postcode', 'address_debug', 'geocoding_status']
         available_new_columns = [col for col in new_location_columns if col in processed_df.columns]
         
         col1, col2 = st.columns(2)
