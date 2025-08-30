@@ -413,12 +413,23 @@ def main():
                 # Create Excel file in memory with proper formatting to preserve leading zeros
                 output = BytesIO()
                 
-                # Preserve text formatting for leading zeros by adding apostrophe prefix
+                # Preserve phone number formatting by adding country code prefix
                 export_df_text = export_df.copy()
                 for col in export_df_text.columns:
-                    export_df_text[col] = export_df_text[col].astype(str).apply(
-                        lambda x: f"'{x}" if (x.startswith('0') and len(x) > 1 and x.replace('.', '').isdigit()) else str(x)
-                    )
+                    # Check if column name suggests it contains phone numbers
+                    col_lower = col.lower()
+                    is_phone_col = any(term in col_lower for term in ['tél', 'tel', 'phone', 'portable', 'mobile', 'telephone'])
+                    
+                    if is_phone_col:
+                        # Add country code +213 for phone numbers starting with 0
+                        export_df_text[col] = export_df_text[col].astype(str).apply(
+                            lambda x: f"+213{x[1:]}" if (x.startswith('0') and len(x) >= 9 and x.replace('.', '').isdigit()) else str(x)
+                        )
+                    else:
+                        # For non-phone columns, just convert to string but preserve leading zeros with apostrophe
+                        export_df_text[col] = export_df_text[col].astype(str).apply(
+                            lambda x: f"'{x}" if (x.startswith('0') and len(x) > 1 and x.replace('.', '').isdigit()) else str(x)
+                        )
                 
                 # Create Excel file
                 export_df_text.to_excel(output, index=False, sheet_name='Processed_Data', engine='openpyxl')
