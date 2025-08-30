@@ -410,9 +410,32 @@ def main():
             # Download button
             col1, col2, col3 = st.columns([1, 2, 1])
             with col2:
-                # Create Excel file in memory
+                # Create Excel file in memory with proper formatting to preserve leading zeros
                 output = BytesIO()
-                export_df.to_excel(output, index=False, sheet_name='Processed_Data', engine='openpyxl')
+                
+                # Convert all data to string to preserve original formatting (like leading zeros in phone numbers)
+                export_df_formatted = export_df.copy()
+                for col in export_df_formatted.columns:
+                    export_df_formatted[col] = export_df_formatted[col].astype(str)
+                
+                # Use ExcelWriter to have more control over formatting
+                with pd.ExcelWriter(output, engine='openpyxl') as writer:
+                    export_df_formatted.to_excel(writer, index=False, sheet_name='Processed_Data')
+                    
+                    # Get the workbook and worksheet to apply text formatting
+                    workbook = writer.book
+                    worksheet = writer.sheets['Processed_Data']
+                    
+                    # Format all cells as text to preserve leading zeros
+                    from openpyxl.styles import NamedStyle
+                    text_style = NamedStyle(name="text_style")
+                    text_style.number_format = '@'  # Text format
+                    
+                    # Apply text formatting to all data cells
+                    for row in worksheet.iter_rows(min_row=2, max_row=len(export_df_formatted)+1):
+                        for cell in row:
+                            cell.style = text_style
+                
                 excel_data = output.getvalue()
                 
                 st.download_button(
