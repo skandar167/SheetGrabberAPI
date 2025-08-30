@@ -168,10 +168,20 @@ def process_excel_file(df, lat_col, lng_col, progress_bar, status_text):
     
     for idx, row in df.iterrows():
         try:
-            lat = float(row[lat_col])
-            lng = float(row[lng_col])
+            # Convert string coordinates to float for API call
+            lat_str = str(row[lat_col]).strip()
+            lng_str = str(row[lng_col]).strip()
             
             # Skip invalid coordinates
+            if not lat_str or not lng_str or lat_str == 'nan' or lng_str == 'nan':
+                processed_data.at[idx, 'commune'] = 'Invalid Coordinates'
+                processed_data.at[idx, 'geocoding_status'] = 'skipped'
+                failed_geocodes += 1
+                continue
+                
+            lat = float(lat_str)
+            lng = float(lng_str)
+            
             if pd.isna(lat) or pd.isna(lng) or lat == 0 or lng == 0:
                 processed_data.at[idx, 'commune'] = 'Invalid Coordinates'
                 processed_data.at[idx, 'geocoding_status'] = 'skipped'
@@ -248,9 +258,9 @@ def main():
     
     if uploaded_file is not None:
         try:
-            # Read the Excel file
+            # Read the Excel file while preserving original formatting (including leading zeros)
             with st.spinner("Reading Excel file..."):
-                df = pd.read_excel(uploaded_file)
+                df = pd.read_excel(uploaded_file, dtype=str)  # Read all columns as strings to preserve formatting
             
             st.success(f"✅ File uploaded successfully! Found {len(df)} rows and {len(df.columns)} columns.")
             
@@ -299,10 +309,15 @@ def main():
                 
                 for _, row in df.iterrows():
                     try:
-                        lat = float(row[lat_col])
-                        lng = float(row[lng_col])
-                        if not (pd.isna(lat) or pd.isna(lng) or lat == 0 or lng == 0):
-                            valid_coords += 1
+                        # Convert string coordinates to float for validation
+                        lat_str = str(row[lat_col]).strip()
+                        lng_str = str(row[lng_col]).strip()
+                        
+                        if lat_str and lng_str and lat_str != 'nan' and lng_str != 'nan':
+                            lat = float(lat_str)
+                            lng = float(lng_str)
+                            if not (pd.isna(lat) or pd.isna(lng) or lat == 0 or lng == 0):
+                                valid_coords += 1
                     except:
                         continue
                 
@@ -413,22 +428,18 @@ def main():
                 # Create Excel file in memory with proper formatting to preserve leading zeros
                 output = BytesIO()
                 
-                # Preserve phone number formatting by adding country code prefix
+                # Data is already preserved as strings from file reading, just export directly
                 export_df_text = export_df.copy()
+                
+                # Optional: Add country code prefix for phone columns
                 for col in export_df_text.columns:
-                    # Check if column name suggests it contains phone numbers
                     col_lower = col.lower()
                     is_phone_col = any(term in col_lower for term in ['tél', 'tel', 'phone', 'portable', 'mobile', 'telephone'])
                     
                     if is_phone_col:
                         # Add country code +213 for phone numbers starting with 0
                         export_df_text[col] = export_df_text[col].astype(str).apply(
-                            lambda x: f"+213{x[1:]}" if (x.startswith('0') and len(x) >= 9 and x.replace('.', '').isdigit()) else str(x)
-                        )
-                    else:
-                        # For non-phone columns, just convert to string but preserve leading zeros with apostrophe
-                        export_df_text[col] = export_df_text[col].astype(str).apply(
-                            lambda x: f"'{x}" if (x.startswith('0') and len(x) > 1 and x.replace('.', '').isdigit()) else str(x)
+                            lambda x: f"+213{x[1:]}" if (str(x).startswith('0') and len(str(x)) >= 9 and str(x).replace('.', '').isdigit()) else str(x)
                         )
                 
                 # Create Excel file
