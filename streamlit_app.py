@@ -18,6 +18,8 @@ def calculate_reactor_conversion(initial_conc, final_conc):
     """Calculate reactor conversion percentage"""
     if initial_conc == 0:
         return 0
+    if final_conc > initial_conc:
+        return 0  # Invalid: final concentration cannot exceed initial
     return ((initial_conc - final_conc) / initial_conc) * 100
 
 
@@ -490,40 +492,44 @@ def main():
                         st.dataframe(processed_df, use_container_width=True)
                         
                         # Statistics
-                        kpi_column = [col for col in processed_df.columns if col not in df.columns][0]
-                        st.subheader("📊 Statistics")
-                        
-                        col1, col2, col3, col4 = st.columns(4)
-                        with col1:
-                            st.metric("Mean", f"{processed_df[kpi_column].mean():.2f}")
-                        with col2:
-                            st.metric("Median", f"{processed_df[kpi_column].median():.2f}")
-                        with col3:
-                            st.metric("Min", f"{processed_df[kpi_column].min():.2f}")
-                        with col4:
-                            st.metric("Max", f"{processed_df[kpi_column].max():.2f}")
-                        
-                        # Visualization
-                        st.subheader("📉 Visualization")
-                        
-                        viz_type = st.radio(
-                            "Select Visualization Type",
-                            ["Line Chart", "Bar Chart", "Histogram", "Box Plot"],
-                            horizontal=True
-                        )
-                        
-                        if viz_type == "Line Chart":
-                            fig = px.line(processed_df, y=kpi_column, title=f"{selected_kpi} Trend")
-                            st.plotly_chart(fig, use_container_width=True)
-                        elif viz_type == "Bar Chart":
-                            fig = px.bar(processed_df, y=kpi_column, title=f"{selected_kpi} by Row")
-                            st.plotly_chart(fig, use_container_width=True)
-                        elif viz_type == "Histogram":
-                            fig = px.histogram(processed_df, x=kpi_column, title=f"{selected_kpi} Distribution")
-                            st.plotly_chart(fig, use_container_width=True)
-                        elif viz_type == "Box Plot":
-                            fig = px.box(processed_df, y=kpi_column, title=f"{selected_kpi} Box Plot")
-                            st.plotly_chart(fig, use_container_width=True)
+                        kpi_columns = [col for col in processed_df.columns if col not in df.columns]
+                        if not kpi_columns:
+                            st.error("No KPI column was added. Please check your data.")
+                        else:
+                            kpi_column = kpi_columns[0]
+                            st.subheader("📊 Statistics")
+                            
+                            col1, col2, col3, col4 = st.columns(4)
+                            with col1:
+                                st.metric("Mean", f"{processed_df[kpi_column].mean():.2f}")
+                            with col2:
+                                st.metric("Median", f"{processed_df[kpi_column].median():.2f}")
+                            with col3:
+                                st.metric("Min", f"{processed_df[kpi_column].min():.2f}")
+                            with col4:
+                                st.metric("Max", f"{processed_df[kpi_column].max():.2f}")
+                            
+                            # Visualization
+                            st.subheader("📉 Visualization")
+                            
+                            viz_type = st.radio(
+                                "Select Visualization Type",
+                                ["Line Chart", "Bar Chart", "Histogram", "Box Plot"],
+                                horizontal=True
+                            )
+                            
+                            if viz_type == "Line Chart":
+                                fig = px.line(processed_df, y=kpi_column, title=f"{selected_kpi} Trend")
+                                st.plotly_chart(fig, use_container_width=True)
+                            elif viz_type == "Bar Chart":
+                                fig = px.bar(processed_df, y=kpi_column, title=f"{selected_kpi} by Row")
+                                st.plotly_chart(fig, use_container_width=True)
+                            elif viz_type == "Histogram":
+                                fig = px.histogram(processed_df, x=kpi_column, title=f"{selected_kpi} Distribution")
+                                st.plotly_chart(fig, use_container_width=True)
+                            elif viz_type == "Box Plot":
+                                fig = px.box(processed_df, y=kpi_column, title=f"{selected_kpi} Box Plot")
+                                st.plotly_chart(fig, use_container_width=True)
                     else:
                         st.error(f"❌ Error calculating KPIs: {error_msg}")
                         
@@ -604,7 +610,13 @@ def main():
             if st.button("Calculate"):
                 result = calculate_reynolds_number(density, velocity, diameter, viscosity)
                 st.success(f"**Reynolds Number: {result:.2f}**")
-                flow_type = "Laminar" if result < 2300 else "Transitional" if result < 4000 else "Turbulent"
+                # Determine flow regime
+                if result < 2300:
+                    flow_type = "Laminar"
+                elif result < 4000:
+                    flow_type = "Transitional"
+                else:
+                    flow_type = "Turbulent"
                 st.info(f"Flow regime: {flow_type}")
                 
         elif selected_kpi == "Mass Flow Rate":
