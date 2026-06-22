@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useMemo } from "react";
-import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
 import * as XLSX from "xlsx";
 import { 
   Upload, 
@@ -19,14 +19,13 @@ import {
   Map
 } from "lucide-react";
 
-// Dynamically import the map to avoid SSR issues with Leaflet
-const MapPreview = dynamic(() => import("../components/MapPreview"), { ssr: false });
 
 interface RowData {
   [key: string]: any;
 }
 
 export default function SheetGrabberApp() {
+  const router = useRouter();
   // File state
   const [file, setFile] = useState<File | null>(null);
   const [headers, setHeaders] = useState<string[]>([]);
@@ -632,20 +631,38 @@ export default function SheetGrabberApp() {
               </div>
             </div>
           )}
-          {/* Map Preview */}
+          {/* Open Full Map Button */}
           {mapClients.length > 0 && latColumn && lngColumn && nameColumn && (
             <div className="glass-card map-section">
-              <h2 className="section-title"><Map size={18} /> Client Map Preview</h2>
+              <h2 className="section-title"><Map size={18} /> Visualisation Carte</h2>
               <div className="map-stats">
                 <span className="map-stat-badge">
                   <span className="dot"></span>
-                  {mapClients.length} client{mapClients.length !== 1 ? "s" : ""} on map
+                  {mapClients.length} client{mapClients.length !== 1 ? "s" : ""} localisés
                 </span>
                 <span className="map-stat-badge" style={{ color: "var(--text-muted)" }}>
-                  Name: <strong style={{ color: "var(--accent-secondary)", marginLeft: 4 }}>{nameColumn}</strong>
+                  Nom: <strong style={{ color: "var(--accent-secondary)", marginLeft: 4 }}>{nameColumn}</strong>
                 </span>
               </div>
-              <MapPreview clients={mapClients} />
+              <div style={{ 
+                background: "rgba(13,19,33,0.6)", border: "1px solid rgba(255,255,255,0.07)", 
+                borderRadius: "10px", padding: "2rem", textAlign: "center"
+              }}>
+                <Map size={40} style={{ color: "var(--accent-primary)", marginBottom: "1rem", opacity: 0.7 }} />
+                <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem", marginBottom: "1.5rem", maxWidth: 340, margin: "0 auto 1.25rem" }}>
+                  Ouvrez la carte en plein écran pour visualiser tous vos clients avec leur nom complet.
+                </p>
+                <button
+                  className="btn btn-primary"
+                  style={{ width: "auto", padding: "0.75rem 2rem" }}
+                  onClick={() => {
+                    sessionStorage.setItem("mapClients", JSON.stringify(mapClients));
+                    router.push("/map");
+                  }}
+                >
+                  <Map size={16} /> Ouvrir la carte en plein écran
+                </button>
+              </div>
             </div>
           )}
         </div>
