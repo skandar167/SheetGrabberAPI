@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useMemo } from "react";
+import dynamic from "next/dynamic";
 import * as XLSX from "xlsx";
 import { 
   Upload, 
@@ -14,8 +15,12 @@ import {
   Globe, 
   Database,
   ArrowRight,
-  AlertCircle
+  AlertCircle,
+  Map
 } from "lucide-react";
+
+// Dynamically import the map to avoid SSR issues with Leaflet
+const MapPreview = dynamic(() => import("../components/MapPreview"), { ssr: false });
 
 interface RowData {
   [key: string]: any;
@@ -30,6 +35,7 @@ export default function SheetGrabberApp() {
   // Column mapping state
   const [latColumn, setLatColumn] = useState<string>("");
   const [lngColumn, setLngColumn] = useState<string>("");
+  const [nameColumn, setNameColumn] = useState<string>("");
   
   // Processing state
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
@@ -83,12 +89,20 @@ export default function SheetGrabberApp() {
       return c === "lng" || c === "lon" || c === "long" || c === "longitude" || c === "x";
     });
 
+    const nameCandidates = cols.filter(col => {
+      const c = col.toLowerCase();
+      return c.includes("nom") || c.includes("name") || c.includes("prenom") || c.includes("client") || c.includes("fullname") || c.includes("full_name");
+    });
+
     if (latCandidates.length > 0) setLatColumn(latCandidates[0]);
     else if (cols.length > 0) setLatColumn(cols[0]);
 
     if (lngCandidates.length > 0) setLngColumn(lngCandidates[0]);
     else if (cols.length > 1) setLngColumn(cols[1]);
     else if (cols.length > 0) setLngColumn(cols[0]);
+
+    if (nameCandidates.length > 0) setNameColumn(nameCandidates[0]);
+    else if (cols.length > 0) setNameColumn(cols[0]);
   };
 
   // Handle file import
@@ -319,6 +333,18 @@ export default function SheetGrabberApp() {
     ? ((successCount / (successCount + failCount)) * 100).toFixed(1) 
     : "0.0";
 
+  // Build client map data from current data and selected columns
+  const mapClients = useMemo(() => {
+    if (!latColumn || !lngColumn || !nameColumn || data.length === 0) return [];
+    return data
+      .map(row => ({
+        lat: parseFloat(String(row[latColumn]).trim()),
+        lng: parseFloat(String(row[lngColumn]).trim()),
+        name: String(row[nameColumn] || "").trim(),
+      }))
+      .filter(c => !isNaN(c.lat) && !isNaN(c.lng) && c.lat !== 0 && c.lng !== 0);
+  }, [data, latColumn, lngColumn, nameColumn]);
+
   return (
     <div className="app-container">
       {/* Header */}
@@ -409,6 +435,21 @@ export default function SheetGrabberApp() {
                   disabled={isProcessing}
                 >
                   <option value="">-- Choose longitude column --</option>
+                  {headers.map(h => (
+                    <option key={h} value={h}>{h}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Client Name Column</label>
+                <select 
+                  className="form-select"
+                  value={nameColumn}
+                  onChange={(e) => setNameColumn(e.target.value)}
+                  disabled={isProcessing}
+                >
+                  <option value="">-- Choose name column --</option>
                   {headers.map(h => (
                     <option key={h} value={h}>{h}</option>
                   ))}
@@ -589,6 +630,22 @@ export default function SheetGrabberApp() {
                   </tbody>
                 </table>
               </div>
+            </div>
+          )}
+          {/* Map Preview */}
+          {mapClients.length > 0 && latColumn && lngColumn && nameColumn && (
+            <div className="glass-card map-section">
+              <h2 className="section-title"><Map size={18} /> Client Map Preview</h2>
+              <div className="map-stats">
+                <span className="map-stat-badge">
+                  <span className="dot"></span>
+                  {mapClients.length} client{mapClients.length !== 1 ? "s" : ""} on map
+                </span>
+                <span className="map-stat-badge" style={{ color: "var(--text-muted)" }}>
+                  Name: <strong style={{ color: "var(--accent-secondary)", marginLeft: 4 }}>{nameColumn}</strong>
+                </span>
+              </div>
+              <MapPreview clients={mapClients} />
             </div>
           )}
         </div>
