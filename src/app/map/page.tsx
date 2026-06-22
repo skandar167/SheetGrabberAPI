@@ -250,6 +250,21 @@ export default function MapPage() {
             </div>
           </div>
         )}
+
+        {/* Author credit */}
+        <div style={{
+          padding: "0.75rem 1.25rem",
+          borderTop: "1px solid rgba(255,255,255,0.05)",
+          textAlign: "center",
+          fontSize: "0.72rem",
+          color: "#475569",
+          lineHeight: 1.6,
+        }}>
+          Développé par<br />
+          <span style={{ color: "#00f2fe", fontWeight: 600, fontSize: "0.78rem" }}>
+            AOUATI Abdellatif Skander
+          </span>
+        </div>
       </aside>
 
       {/* Sidebar toggle button */}

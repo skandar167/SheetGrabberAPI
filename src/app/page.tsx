@@ -670,6 +670,10 @@ export default function SheetGrabberApp() {
 
       <footer className="app-footer">
         <p>SheetGrabber — Built for rapid local address parsing and geocoding.</p>
+        <p style={{ marginTop: "0.4rem", fontSize: "0.78rem", color: "var(--text-muted)" }}>
+          Développé par{" "}
+          <span style={{ color: "var(--accent-secondary)", fontWeight: 600 }}>AOUATI Abdellatif Skander</span>
+        </p>
       </footer>
     </div>
   );
