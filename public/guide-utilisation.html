@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guide d'utilisation — SheetGrabber</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+    :root {
+      --accent: #4facfe;
+      --accent2: #00f2fe;
+      --dark: #0b0f19;
+      --card: #151d2e;
+      --text: #1e293b;
+      --muted: #64748b;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --border: #e2e8f0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      color: var(--text);
+      background: #f8fafc;
+      font-size: 13.5px;
+      line-height: 1.65;
+    }
+
+    /* ── Cover Page ── */
+    .cover {
+      background: linear-gradient(145deg, #0b0f19 0%, #1a2540 60%, #0e1a2e 100%);
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 3rem 2rem;
+      page-break-after: always;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cover::before {
+      content: '';
+      position: absolute;
+      top: -100px; left: -100px;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(79,172,254,0.12) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .cover::after {
+      content: '';
+      position: absolute;
+      bottom: -80px; right: -80px;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(0,242,254,0.1) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .cover-logo {
+      width: 80px; height: 80px;
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      border-radius: 20px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.5rem;
+      margin: 0 auto 1.5rem;
+      box-shadow: 0 0 40px rgba(79,172,254,0.35);
+      position: relative; z-index: 1;
+    }
+
+    .cover h1 {
+      font-size: 3rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: linear-gradient(90deg, #ffffff, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      position: relative; z-index: 1;
+      margin-bottom: 0.5rem;
+    }
+
+    .cover .tagline {
+      font-size: 1.1rem;
+      color: rgba(255,255,255,0.55);
+      margin-bottom: 2.5rem;
+      position: relative; z-index: 1;
+    }
+
+    .cover-badge {
+      display: inline-block;
+      background: rgba(79,172,254,0.15);
+      border: 1px solid rgba(79,172,254,0.35);
+      color: var(--accent);
+      padding: 0.45rem 1.25rem;
+      border-radius: 30px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-bottom: 4rem;
+      position: relative; z-index: 1;
+    }
+
+    .cover-meta {
+      position: relative; z-index: 1;
+      color: rgba(255,255,255,0.35);
+      font-size: 0.82rem;
+    }
+
+    .cover-meta strong {
+      color: rgba(0,242,254,0.8);
+      font-weight: 600;
+    }
+
+    .cover-divider {
+      width: 60px; height: 2px;
+      background: linear-gradient(90deg, #4facfe, #00f2fe);
+      margin: 1.5rem auto;
+      border-radius: 2px;
+    }
+
+    /* ── Main Content ── */
+    .page {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 3rem 3.5rem;
+    }
+
+    /* Table of Contents */
+    .toc {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 2rem 2.5rem;
+      margin-bottom: 3rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+      page-break-after: always;
+    }
+
+    .toc h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .toc ol {
+      list-style: none;
+      counter-reset: toc;
+    }
+
+    .toc li {
+      counter-increment: toc;
+      display: flex;
+      align-items: center;
+      padding: 0.5rem 0;
+      border-bottom: 1px dashed #e2e8f0;
+      font-size: 0.92rem;
+      gap: 0.75rem;
+    }
+
+    .toc li:last-child { border-bottom: none; }
+
+    .toc li::before {
+      content: counter(toc, decimal-leading-zero);
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: white;
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      width: 24px; height: 24px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .toc .page-num {
+      margin-left: auto;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    /* Sections */
+    .section {
+      margin-bottom: 3rem;
+      page-break-inside: avoid;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid #e2e8f0;
+    }
+
+    .step-number {
+      width: 38px; height: 38px;
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      color: white;
+      font-weight: 800;
+      font-size: 1rem;
+      border-radius: 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(79,172,254,0.3);
+    }
+
+    .section-header h2 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .section p {
+      margin-bottom: 0.85rem;
+      color: #334155;
+    }
+
+    /* Cards / info blocks */
+    .card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+    }
+
+    .card-title {
+      font-weight: 700;
+      font-size: 0.92rem;
+      color: #0f172a;
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .card p {
+      font-size: 0.88rem;
+      color: #475569;
+      margin: 0;
+    }
+
+    /* Tip / warning / info alerts */
+    .alert {
+      border-radius: 10px;
+      padding: 0.9rem 1.2rem;
+      margin: 1rem 0;
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+      font-size: 0.88rem;
+    }
+
+    .alert-icon { font-size: 1.1rem; flex-shrink: 0; }
+
+    .alert.info {
+      background: #eff6ff;
+      border-left: 3px solid #3b82f6;
+      color: #1e40af;
+    }
+
+    .alert.tip {
+      background: #f0fdf4;
+      border-left: 3px solid #10b981;
+      color: #065f46;
+    }
+
+    .alert.warning {
+      background: #fffbeb;
+      border-left: 3px solid #f59e0b;
+      color: #92400e;
+    }
+
+    /* Steps list */
+    .steps {
+      list-style: none;
+      counter-reset: steps;
+    }
+
+    .steps li {
+      counter-increment: steps;
+      position: relative;
+      padding: 0.6rem 0 0.6rem 2.5rem;
+      color: #334155;
+      font-size: 0.92rem;
+    }
+
+    .steps li::before {
+      content: counter(steps);
+      position: absolute;
+      left: 0; top: 0.55rem;
+      width: 20px; height: 20px;
+      background: var(--accent);
+      color: white;
+      font-size: 0.72rem;
+      font-weight: 700;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Column tags */
+    .tag {
+      display: inline-block;
+      background: linear-gradient(135deg, rgba(79,172,254,0.12), rgba(0,242,254,0.08));
+      border: 1px solid rgba(79,172,254,0.3);
+      color: #0369a1;
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      font-family: monospace;
+    }
+
+    .tag.green {
+      background: rgba(16,185,129,0.1);
+      border-color: rgba(16,185,129,0.3);
+      color: #065f46;
+    }
+
+    .tag.orange {
+      background: rgba(245,158,11,0.1);
+      border-color: rgba(245,158,11,0.3);
+      color: #92400e;
+    }
+
+    .tag.red {
+      background: rgba(239,68,68,0.1);
+      border-color: rgba(239,68,68,0.3);
+      color: #991b1b;
+    }
+
+    /* Feature grid */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.85rem;
+      margin: 1rem 0;
+    }
+
+    .feature-item {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+    }
+
+    .feature-icon {
+      font-size: 1.35rem;
+      flex-shrink: 0;
+    }
+
+    .feature-item strong {
+      display: block;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 0.2rem;
+    }
+
+    .feature-item p {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    /* Status badges */
+    .badge-row {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+      margin: 0.75rem 0;
+    }
+
+    .badge {
+      padding: 0.3rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .badge.success { background: rgba(16,185,129,0.12); color: #065f46; }
+    .badge.error   { background: rgba(239,68,68,0.12);  color: #991b1b; }
+    .badge.skipped { background: rgba(100,116,139,0.12); color: #475569; }
+
+    /* Separator */
+    .sep {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 2.5rem 0;
+    }
+
+    /* Footer */
+    .doc-footer {
+      background: linear-gradient(135deg, #0b0f19 0%, #1a2540 100%);
+      color: rgba(255,255,255,0.4);
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.78rem;
+      margin-top: 3rem;
+    }
+
+    .doc-footer strong {
+      color: #00f2fe;
+    }
+
+    /* Print */
+    @media print {
+      body { background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .cover { min-height: 100vh; }
+      .no-print { display: none; }
+      .section { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ══════════════ COVER ══════════════ -->
+  <div class="cover">
+    <div class="cover-logo">📍</div>
+    <h1>SheetGrabber</h1>
+    <p class="tagline">Reverse Geocoding depuis vos fichiers Excel</p>
+    <div class="cover-badge">📘 Guide d'utilisation — Utilisateur</div>
+    <div class="cover-divider"></div>
+    <p class="cover-meta">
+      Développé par <strong>AOUATI Abdellatif Skander</strong><br>
+      Version 1.0 &nbsp;·&nbsp; Juin 2026
+    </p>
+  </div>
+
+  <!-- ══════════════ CONTENT ══════════════ -->
+  <div class="page">
+
+    <!-- TABLE OF CONTENTS -->
+    <div class="toc">
+      <h2>📋 Table des matières</h2>
+      <ol>
+        <li>Présentation de SheetGrabber <span class="page-num">2</span></li>
+        <li>Préparer votre fichier Excel <span class="page-num">2</span></li>
+        <li>Importer le fichier <span class="page-num">3</span></li>
+        <li>Configurer les colonnes <span class="page-num">3</span></li>
+        <li>Lancer le géocodage <span class="page-num">4</span></li>
+        <li>Visualiser les clients sur la carte <span class="page-num">4</span></li>
+        <li>Exporter les résultats <span class="page-num">5</span></li>
+        <li>Comprendre les statuts <span class="page-num">5</span></li>
+        <li>Conseils et bonnes pratiques <span class="page-num">6</span></li>
+      </ol>
+    </div>
+
+    <!-- ── 1. PRÉSENTATION ── -->
+    <div class="section">
+      <div class="section-header">
+        <div class="step-number">1</div>
+        <h2>Présentation de SheetGrabber</h2>
+      </div>
+
+      <p>
+        <strong>SheetGrabber</strong> est un outil web qui permet de <strong>géocoder inversement</strong> des coordonnées GPS (latitude / longitude) contenues dans un fichier Excel, afin d'en extraire automatiquement des informations de localisation : commune, ville, état, code postal, adresse complète, etc.
+      </p>
+
+      <div class="feature-grid">
+        <div class="feature-item">
+          <div class="feature-icon">📂</div>
+          <div>
+            <strong>Import Excel</strong>
+            <p>Supporte les formats .xlsx et .xls avec glisser-déposer.</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">🌍</div>
+          <div>
+            <strong>Géocodage automatique</strong>
+            <p>Conversion de coordonnées en adresse complète via API.</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">🗺️</div>
+          <div>
+            <strong>Carte interactive</strong>
+            <p>Visualisation des clients sur une carte plein écran avec leur nom.</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">⬇️</div>
+          <div>
+            <strong>Export Excel</strong>
+            <p>Téléchargement du fichier enrichi avec toutes les données de localisation.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="sep" />
+
+    <!-- ── 2. PRÉPARER LE FICHIER ── -->
+    <div class="section">
+      <div class="section-header">
+        <div class="step-number">2</div>
+        <h2>Préparer votre fichier Excel</h2>
+      </div>
+
+      <p>Pour utiliser SheetGrabber, votre fichier doit contenir au minimum les colonnes suivantes :</p>
+
+      <div class="card">
+        <div class="card-title">📌 Colonnes requises</div>
+        <p>
+          &nbsp;• <span class="tag">latitude</span> ou <span class="tag">lat</span> ou <span class="tag">y</span> — Latitude GPS du client<br>
+          &nbsp;• <span class="tag">longitude</span> ou <span class="tag">lng</span> / <span class="tag">lon</span> ou <span class="tag">x</span> — Longitude GPS<br>
+          &nbsp;• Toute colonne contenant le <strong>nom complet</strong> du client (ex: <span class="tag">nom</span>, <span class="tag">name</span>, <span class="tag">client</span>)
+        </p>
+      </div>
+
+      <div class="alert tip">
+        <div class="alert-icon">✅</div>
+        <div>
+          <strong>Bonne pratique :</strong> Nommez vos colonnes avec des en-têtes clairs en première ligne. SheetGrabber détecte automatiquement les colonnes de latitude et longitude.
+        </div>
+      </div>
+
+      <div class="alert warning">
+        <div class="alert-icon">⚠️</div>
+        <div>
+          <strong>Attention :</strong> Les coordonnées doivent être des nombres décimaux valides (ex: <code>36.7372</code>, <code>3.0869</code>). Les valeurs vides, nulles ou égales à 0 seront ignorées.
+        </div>
+      </div>
+    </div>
+
+    <hr class="sep" />
+
+    <!-- ── 3. IMPORTER ── -->
+    <div class="section">
+      <div class="section-header">
+        <div class="step-number">3</div>
+        <h2>Importer le fichier Excel</h2>
+      </div>
+
+      <ol class="steps">
+        <li>Ouvrez SheetGrabber dans votre navigateur.</li>
+        <li>Dans la zone <strong>"Import Excel File"</strong>, cliquez sur la zone d'upload ou <strong>glissez-déposez</strong> votre fichier .xlsx / .xls directement.</li>
+        <li>Le nom du fichier et sa taille s'affichent en confirmation.</li>
+        <li>Un aperçu des 10 premières lignes apparaît automatiquement dans la section <strong>"Data Preview"</strong>.</li>
+      </ol>
+
+      <div class="alert info">
+        <div class="alert-icon">ℹ️</div>
+        <div>
+          <strong>Note :</strong> Seule la première feuille du fichier Excel est traitée. Si vos données sont dans une autre feuille, déplacez-les dans la première avant d'importer.
+        </div>
+      </div>
+    </div>
+
+    <hr class="sep" />
+
+    <!-- ── 4. CONFIGURER ── -->
+    <div class="section">
+      <div class="section-header">
+        <div class="step-number">4</div>
+        <h2>Configurer les colonnes</h2>
+      </div>
+
+      <p>Une fois le fichier importé, la section <strong>"Coordinate Mapping"</strong> apparaît. Vous devez associer les colonnes de votre fichier aux champs requis :</p>
+
+      <div class="card">
+        <div class="card-title">🔧 Trois colonnes à sélectionner</div>
+        <p>
+          &nbsp;• <strong>Latitude Column</strong> — La colonne contenant les latitudes GPS<br>
+          &nbsp;• <strong>Longitude Column</strong> — La colonne contenant les longitudes GPS<br>
+          &nbsp;• <strong>Client Name Column</strong> — La colonne avec le nom complet du client (pour la carte)
+        </p>
+      </div>
+
+      <div class="alert tip">
+        <div class="alert-icon">🤖</div>
+        <div>
+          <strong>Détection automatique :</strong> SheetGrabber reconnaît automatiquement les colonnes standard. Si vos colonnes sont nommées <span class="tag">lat</span>, <span class="tag">lng</span>, <span class="tag">nom</span> ou similaire, elles seront pré-sélectionnées.
+        </div>
+      </div>
+    </div>
+
+    <hr class="sep" />
+
+    <!-- ── 5. LANCER ── -->
+    <div class="section">
+      <div class="section-header">
+        <div class="step-number">5</div>
+        <h2>Lancer le géocodage</h2>
+      </div>
+
+      <p>Une fois les colonnes configurées, cliquez sur le bouton <strong>"Start Geocoding"</strong>.</p>
+
+      <ol class="steps">
+        <li>Le traitement démarre ligne par ligne, avec une barre de progression en temps réel.</li>
+        <li>Chaque ligne est traitée à raison d'<strong>une requête par seconde</strong> (limite de l'API).</li>
+        <li>Le journal d'état indique la ligne en cours de traitement.</li>
+        <li>À la fin, les statistiques affichent le nombre de succès, d'erreurs et de lignes ignorées.</li>
+      </ol>
+
+      <div class="alert warning">
+        <div class="alert-icon">⏱️</div>
+        <div>
+          <strong>Durée estimée :</strong> Comptez environ <strong>1 seconde par ligne</strong>. Pour 100 clients : ~1 minute 40. Pour 500 clients : ~8 minutes. Ne fermez pas la page pendant le traitement.
+        </div>
+      </div>
+    </div>
+
+    <hr class="sep" />
+
+    <!-- ── 6. CARTE ── -->
+    <div class="section">
+      <div class="section-header">
+        <div class="step-number">6</div>
+        <h2>Visualiser les clients sur la carte</h2>
+      </div>
+
+      <p>Après avoir sélectionné les colonnes latitude, longitude et nom, la section <strong>"Visualisation Carte"</strong> apparaît dans la colonne de droite.</p>
+
+      <ol class="steps">
+        <li>Cliquez sur <strong>"Ouvrir la carte en plein écran"</strong>.</li>
+        <li>La page carte s'ouvre et affiche tous vos clients comme des marqueurs sur la carte.</li>
+        <li>La <strong>sidebar gauche</strong> liste tous les clients avec leur nom.</li>
+        <li>Utilisez la <strong>barre de recherche</strong> pour trouver un client par nom.</li>
+        <li>Cliquez sur un client dans la liste pour que la carte <strong>vole vers</strong> sa position.</li>
+        <li>Cliquez sur un marqueur sur la carte pour voir le <strong>nom complet</strong> du client.</li>
+        <li>Cliquez sur <strong>"◀ Retour"</strong> pour revenir à la page principale.</li>
+      </ol>
+
+      <div class="alert info">
+        <div class="alert-icon">💡</div>
+        <div>
+          La carte est utilisable <strong>avant même le géocodage</strong>, dès que vous avez sélectionné les colonnes latitude, longitude et nom.
+        </div>
+      </div>
+    </div>
+
+    <hr class="sep" />
+
+    <!-- ── 7. EXPORTER ── -->
+    <div class="section">
+      <div class="section-header">
+        <div class="step-number">7</div>
+        <h2>Exporter les résultats</h2>
+      </div>
+
+      <p>Après la fin du géocodage, la section <strong>"Export Processed Sheet"</strong> apparaît :</p>
+
+      <ol class="steps">
+        <li>Cochez les <strong>colonnes originales</strong> de votre fichier à conserver.</li>
+        <li>Cochez les <strong>nouvelles colonnes</strong> géocodées à inclure dans l'export.</li>
+        <li>Cliquez sur <strong>"Download Processed Excel File"</strong>.</li>
+        <li>Un fichier <code>processed_addresses_AAAAMMJJ.xlsx</code> est téléchargé automatiquement.</li>
+      </ol>
+
+      <div class="card">
+        <div class="card-title">📦 Colonnes ajoutées par SheetGrabber</div>
+        <p>
+          <span class="tag">commune</span> &nbsp;
+          <span class="tag">municipality</span> &nbsp;
+          <span class="tag">town</span> &nbsp;
+          <span class="tag">district</span> &nbsp;
+          <span class="tag">suburb</span> &nbsp;
+          <span class="tag">city</span> &nbsp;
+          <span class="tag">state</span> &nbsp;
+          <span class="tag">country</span> &nbsp;
+          <span class="tag">postcode</span> &nbsp;
+          <span class="tag">full_address</span> &nbsp;
+          <span class="tag">geocoding_status</span>
+        </p>
+      </div>
+    </div>
+
+    <hr class="sep" />
+
+    <!-- ── 8. STATUTS ── -->
+    <div class="section">
+      <div class="section-header">
+        <div class="step-number">8</div>
+        <h2>Comprendre les statuts de géocodage</h2>
+      </div>
+
+      <p>La colonne <span class="tag">geocoding_status</span> indique le résultat du traitement pour chaque ligne :</p>
+
+      <div class="badge-row">
+        <span class="badge success">✅ success</span>
+        <span class="badge error">❌ error</span>
+        <span class="badge skipped">⏭ skipped</span>
+      </div>
+
+      <div class="card">
+        <div class="card-title">✅ success</div>
+        <p>La coordonnée a été correctement géocodée. Toutes les colonnes d'adresse sont remplies.</p>
+      </div>
+      <div class="card">
+        <div class="card-title">❌ error</div>
+        <p>Une erreur s'est produite lors de la requête API (erreur réseau, serveur indisponible, etc.). Relancez le traitement si ce cas se produit fréquemment.</p>
+      </div>
+      <div class="card">
+        <div class="card-title">⏭ skipped</div>
+        <p>La ligne a été ignorée car les coordonnées sont vides, nulles (0,0) ou au format invalide (NaN, texte, etc.).</p>
+      </div>
+    </div>
+
+    <hr class="sep" />
+
+    <!-- ── 9. CONSEILS ── -->
+    <div class="section">
+      <div class="section-header">
+        <div class="step-number">9</div>
+        <h2>Conseils et bonnes pratiques</h2>
+      </div>
+
+      <div class="alert tip">
+        <div class="alert-icon">📱</div>
+        <div>
+          <strong>Numéros de téléphone :</strong> Si votre fichier contient des colonnes nommées <span class="tag">tél</span>, <span class="tag">tel</span>, <span class="tag">portable</span> ou <span class="tag">mobile</span>, les numéros commençant par <code>0</code> sont automatiquement convertis au format international algérien <code>+213XXXXXXXXX</code> dans l'export.
+        </div>
+      </div>
+
+      <div class="alert tip">
+        <div class="alert-icon">💾</div>
+        <div>
+          <strong>Sauvegardez pendant le traitement :</strong> Ne rafraîchissez pas la page en cours de géocodage, cela réinitialisera toutes les données. Attendez la fin complète avant d'exporter.
+        </div>
+      </div>
+
+      <div class="alert info">
+        <div class="alert-icon">🌐</div>
+        <div>
+          <strong>Connexion Internet requise :</strong> SheetGrabber nécessite une connexion active pour appeler l'API de géocodage. L'import, la carte et l'export fonctionnent en local.
+        </div>
+      </div>
+
+      <div class="alert warning">
+        <div class="alert-icon">📊</div>
+        <div>
+          <strong>Grands fichiers :</strong> Pour les fichiers de plus de 500 lignes, prévoyez suffisamment de temps. La barre de progression vous indiquera l'avancement en temps réel.
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /page -->
+
+  <!-- ══════════════ FOOTER ══════════════ -->
+  <div class="doc-footer">
+    SheetGrabber &nbsp;·&nbsp; Guide d'utilisation &nbsp;·&nbsp; Version 1.0<br>
+    Développé par <strong>AOUATI Abdellatif Skander</strong> &nbsp;·&nbsp; Juin 2026
+  </div>
+
+</body>
+</html>
