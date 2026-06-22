@@ -1,3 +1,5 @@
+"use client";
+
 import dynamic from "next/dynamic";
 
 // Load the entire map UI dynamically to avoid Leaflet's
