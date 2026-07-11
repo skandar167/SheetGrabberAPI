@@ -1,11 +1,5 @@
 import mongoose from "mongoose";
 
-const MONGODB_URI = process.env.MONGODB_URI as string;
-
-if (!MONGODB_URI) {
-  throw new Error("Please define MONGODB_URI in .env.local");
-}
-
 // Extend NodeJS global to cache the mongoose connection across hot reloads
 declare global {
   // eslint-disable-next-line no-var
@@ -19,6 +13,11 @@ if (!cached) {
 }
 
 export async function connectDB() {
+  const MONGODB_URI = process.env.MONGODB_URI;
+  if (!MONGODB_URI) {
+    throw new Error("Please define MONGODB_URI as an environment variable in Vercel (or .env.local)");
+  }
+
   if (cached.conn) return cached.conn;
 
   if (!cached.promise) {
