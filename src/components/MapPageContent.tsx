@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { ArrowLeft, Map, Users, Info, Share2, Check, Copy, X, ToggleLeft, ToggleRight, Plus } from "lucide-react";
+import { ArrowLeft, Map as MapIcon, Users, Info, Share2, Check, Copy, X, ToggleLeft, ToggleRight, Plus } from "lucide-react";
 import Link from "next/link";
 
 interface ClientData {
@@ -278,7 +278,7 @@ export default function MapPageContent() {
             </div>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.75rem" }}>
-            <Map size={18} style={{ color: "#00f2fe" }} />
+            <MapIcon size={18} style={{ color: "#00f2fe" }} />
             <h1 style={{ fontSize: "1.1rem", fontWeight: 700, color: "#f8fafc", margin: 0 }}>
               Client Map
             </h1>
@@ -411,7 +411,7 @@ export default function MapPageContent() {
             display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
             background: "rgba(11,15,25,0.9)", color: "#64748b", gap: "1rem",
           }}>
-            <Map size={48} style={{ opacity: 0.3 }} />
+            <MapIcon size={48} style={{ opacity: 0.3 }} />
             <p style={{ fontSize: "1rem" }}>Aucune donnée à afficher.</p>
             <Link href="/" style={{
               color: "#4facfe", textDecoration: "none", fontSize: "0.875rem",

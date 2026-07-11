@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { Map, Users, Info } from "lucide-react";
+import { Map as MapIcon, Users, Info } from "lucide-react";
 import Link from "next/link";
 
 interface ClientData {
@@ -121,7 +121,7 @@ export default function ShareMapContent({ token }: ShareMapContentProps) {
   if (state === "loading") {
     return (
       <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#0b0f19", color: "#64748b", fontFamily: "sans-serif" }}>
-        <Map size={40} style={{ opacity: 0.3 }} />
+        <MapIcon size={40} style={{ opacity: 0.3 }} />
         <p style={{ marginLeft: "1rem" }}>Chargement de la carte...</p>
       </div>
     );
@@ -186,7 +186,7 @@ export default function ShareMapContent({ token }: ShareMapContentProps) {
             </span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.75rem" }}>
-            <Map size={18} style={{ color: "#00f2fe" }} />
+            <MapIcon size={18} style={{ color: "#00f2fe" }} />
             <h1 style={{ fontSize: "1.1rem", fontWeight: 700, color: "#f8fafc", margin: 0 }}>
               {label || "Client Map"}
             </h1>
