@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Check, X, Clock, Users, ShieldCheck, RefreshCw } from "lucide-react";
+import { ArrowLeft, Check, X, Clock, Users, ShieldCheck, RefreshCw, Share2 } from "lucide-react";
 
 interface UserRecord {
   _id: string;
@@ -93,19 +93,35 @@ export default function AdminPage() {
             </h1>
           </div>
         </div>
-        <button
-          onClick={fetchUsers}
-          style={{
-            display: "flex", alignItems: "center", gap: "0.4rem",
-            padding: "0.5rem 1rem",
-            background: "rgba(255,255,255,0.05)",
-            border: "1px solid rgba(255,255,255,0.1)",
-            borderRadius: "8px", color: "#94a3b8",
-            cursor: "pointer", fontFamily: "inherit", fontSize: "0.8rem",
-          }}
-        >
-          <RefreshCw size={13} /> Actualiser
-        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+          <Link
+            href="/admin/links"
+            style={{
+              display: "flex", alignItems: "center", gap: "0.4rem",
+              padding: "0.5rem 1rem",
+              background: "rgba(79,172,254,0.1)",
+              border: "1px solid rgba(79,172,254,0.3)",
+              borderRadius: "8px", color: "#4facfe",
+              textDecoration: "none", fontFamily: "inherit", fontSize: "0.8rem",
+              fontWeight: 600,
+            }}
+          >
+            <Share2 size={14} /> Voir tous les liens
+          </Link>
+          <button
+            onClick={fetchUsers}
+            style={{
+              display: "flex", alignItems: "center", gap: "0.4rem",
+              padding: "0.5rem 1rem",
+              background: "rgba(255,255,255,0.05)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              borderRadius: "8px", color: "#94a3b8",
+              cursor: "pointer", fontFamily: "inherit", fontSize: "0.8rem",
+            }}
+          >
+            <RefreshCw size={13} /> Actualiser
+          </button>
+        </div>
       </header>
 
       <main style={{ maxWidth: "900px", margin: "0 auto", padding: "2rem 1.5rem" }}>

@@ -4,6 +4,9 @@ import ShareLink from "@/lib/models/ShareLink";
 import { getSessionUser } from "@/lib/auth";
 import { nanoid } from "nanoid";
 
+export const dynamic = "force-dynamic";
+
+
 /** POST /api/sharelinks — create a new share link */
 export async function POST(req: NextRequest) {
   const session = await getSessionUser();

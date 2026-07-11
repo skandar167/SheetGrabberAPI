@@ -3,6 +3,9 @@ import { connectDB } from "@/lib/mongodb";
 import ShareLink from "@/lib/models/ShareLink";
 import { getSessionUser } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
+
 interface Params {
   params: Promise<{ token: string }>;
 }
