@@ -1,23 +1,29 @@
 "use client";
 
-import React, { useState, useRef, useMemo } from "react";
+import React, { useState, useRef, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import * as XLSX from "xlsx";
 import { 
   Upload, 
   FileSpreadsheet, 
   CheckCircle2, 
-  AlertTriangle, 
   Play, 
   Download, 
   Settings, 
   RefreshCw, 
   Globe, 
   Database,
-  ArrowRight,
   AlertCircle,
-  Map
+  Map,
+  ShieldCheck,
+  LogOut,
+  User
 } from "lucide-react";
+
+interface AuthUser {
+  username: string;
+  role: "admin" | "user";
+}
 
 
 interface RowData {
@@ -26,6 +32,23 @@ interface RowData {
 
 export default function SheetGrabberApp() {
   const router = useRouter();
+
+  // Auth state
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((d) => { if (d.user) setCurrentUser(d.user); })
+      .catch(() => {});
+  }, []);
+
+  const handleLogout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push("/login");
+    router.refresh();
+  };
+
   // File state
   const [file, setFile] = useState<File | null>(null);
   const [headers, setHeaders] = useState<string[]>([]);
@@ -355,10 +378,48 @@ export default function SheetGrabberApp() {
             <p className="brand-subtitle">Reverse Geocode coordinates from Excel files locally</p>
           </div>
         </div>
-        <div>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
           <span style={{ fontSize: "0.85rem", color: "var(--text-muted)", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <Globe size={16} /> API Serverless Connected
+            <Globe size={16} /> API Connected
           </span>
+          {currentUser && (
+            <>
+              {currentUser.role === "admin" && (
+                <a
+                  href="/admin"
+                  style={{
+                    display: "inline-flex", alignItems: "center", gap: "0.35rem",
+                    fontSize: "0.78rem", color: "#fbbf24",
+                    background: "rgba(251,191,36,0.1)", padding: "0.35rem 0.7rem",
+                    borderRadius: "6px", border: "1px solid rgba(251,191,36,0.25)",
+                    textDecoration: "none",
+                  }}
+                >
+                  <ShieldCheck size={13} /> Admin
+                </a>
+              )}
+              <span style={{
+                display: "inline-flex", alignItems: "center", gap: "0.35rem",
+                fontSize: "0.78rem", color: "#94a3b8",
+                background: "rgba(255,255,255,0.05)", padding: "0.35rem 0.7rem",
+                borderRadius: "6px", border: "1px solid rgba(255,255,255,0.08)",
+              }}>
+                <User size={13} /> {currentUser.username}
+              </span>
+              <button
+                onClick={handleLogout}
+                style={{
+                  display: "inline-flex", alignItems: "center", gap: "0.35rem",
+                  fontSize: "0.78rem", color: "#ef4444",
+                  background: "rgba(239,68,68,0.08)", padding: "0.35rem 0.7rem",
+                  borderRadius: "6px", border: "1px solid rgba(239,68,68,0.2)",
+                  cursor: "pointer", fontFamily: "inherit",
+                }}
+              >
+                <LogOut size={13} /> Déconnexion
+              </button>
+            </>
+          )}
         </div>
       </header>
 
