@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { Suspense } from "react";
 import { useParams } from "next/navigation";
 
 const ShareMapContent = dynamic(
@@ -8,8 +9,20 @@ const ShareMapContent = dynamic(
   { ssr: false }
 );
 
-export default function SharePage() {
+function ShareInner() {
   const params = useParams();
   const token = params.token as string;
   return <ShareMapContent token={token} />;
+}
+
+export default function SharePage() {
+  return (
+    <Suspense fallback={
+      <div style={{ minHeight: "100vh", background: "#0b0f19", display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b" }}>
+        Chargement...
+      </div>
+    }>
+      <ShareInner />
+    </Suspense>
+  );
 }
