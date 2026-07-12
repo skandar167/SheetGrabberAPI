@@ -4,7 +4,6 @@ import React, { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Map as MapIcon, Users, Info } from "lucide-react";
-import Link from "next/link";
 
 interface ClientData {
   lat: number;
@@ -37,10 +36,11 @@ export default function ShareMapContent({ token }: ShareMapContentProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [state, setState] = useState<"loading" | "inactive" | "error" | "ok">("loading");
 
-  // Fetch share link data
+  // Fetch share link data — uses window.location.origin so it works on any host
   useEffect(() => {
     if (!token) return;
-    fetch(`/api/sharelinks/${token}`)
+    const base = typeof window !== "undefined" ? window.location.origin : "";
+    fetch(`${base}/api/sharelinks/${token}`)
       .then(async (res) => {
         if (res.status === 410) {
           setState("inactive");
@@ -136,9 +136,6 @@ export default function ShareMapContent({ token }: ShareMapContentProps) {
         <p style={{ color: "#64748b", fontSize: "0.9rem", textAlign: "center", maxWidth: "360px" }}>
           Ce lien de partage a été désactivé par son propriétaire. Contactez l&apos;auteur pour un nouvel accès.
         </p>
-        <Link href="/" style={{ color: "#4facfe", textDecoration: "none", fontSize: "0.875rem", border: "1px solid rgba(79,172,254,0.3)", padding: "0.5rem 1rem", borderRadius: "8px" }}>
-          ← Retour à l&apos;accueil
-        </Link>
       </div>
     );
   }

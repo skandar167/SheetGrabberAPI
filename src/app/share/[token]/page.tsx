@@ -11,7 +11,8 @@ const ShareMapContent = dynamic(
 
 function ShareInner() {
   const params = useParams();
-  const token = params.token as string;
+  const token = params?.token as string | undefined;
+  if (!token) return null;
   return <ShareMapContent token={token} />;
 }
 
