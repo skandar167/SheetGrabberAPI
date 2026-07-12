@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Share2, ToggleLeft, ToggleRight, ExternalLink } from "lucide-react";
+import { ArrowLeft, Share2, ToggleLeft, ToggleRight, ExternalLink, Trash2 } from "lucide-react";
 
 interface ShareLinkRecord {
   _id: string;
@@ -51,6 +51,26 @@ export default function AdminLinksPage() {
         setLinks((prev) =>
           prev.map((l) => (l.token === token ? { ...l, active: !currentStatus } : l))
         );
+      } else {
+        const data = await res.json();
+        alert(`Erreur: ${data.error}`);
+      }
+    } catch (err) {
+      alert("Erreur réseau");
+    } finally {
+      setToggleLoading(null);
+    }
+  };
+
+  const deleteLink = async (token: string) => {
+    if (!confirm("Voulez-vous vraiment supprimer ce lien de façon permanente ?")) return;
+    setToggleLoading(token);
+    try {
+      const res = await fetch(`/api/sharelinks/${token}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        setLinks((prev) => prev.filter((l) => l.token !== token));
       } else {
         const data = await res.json();
         alert(`Erreur: ${data.error}`);
@@ -170,6 +190,22 @@ export default function AdminLinksPage() {
                         }}
                       >
                         {link.active ? <ToggleLeft size={18} /> : <ToggleRight size={18} />}
+                      </button>
+
+                      <button
+                        onClick={() => deleteLink(link.token)}
+                        disabled={toggleLoading === link.token}
+                        title="Supprimer"
+                        style={{
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          width: "36px", height: "36px",
+                          background: "rgba(239,68,68,0.1)",
+                          border: "1px solid rgba(239,68,68,0.2)",
+                          borderRadius: "8px", cursor: toggleLoading === link.token ? "not-allowed" : "pointer",
+                          color: "#f87171", opacity: toggleLoading === link.token ? 0.5 : 1,
+                        }}
+                      >
+                        <Trash2 size={18} />
                       </button>
                     </td>
                   </tr>

@@ -59,3 +59,29 @@ export async function PATCH(req: NextRequest, { params }: Params) {
 
   return NextResponse.json({ ok: true, active: link.active });
 }
+
+/** DELETE /api/sharelinks/[token] — delete a link completely (owner or admin only) */
+export async function DELETE(req: NextRequest, { params }: Params) {
+  const { token } = await params;
+  const session = await getSessionUser();
+  if (!session) {
+    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  }
+
+  await connectDB();
+  const link = await ShareLink.findOne({ token });
+
+  if (!link) {
+    return NextResponse.json({ error: "Link not found" }, { status: 404 });
+  }
+
+  // Only owner or admin can delete
+  if (link.createdBy.toString() !== session.userId && session.role !== "admin") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  await link.deleteOne();
+
+  return NextResponse.json({ ok: true, deleted: true });
+}
+

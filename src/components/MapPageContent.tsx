@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { ArrowLeft, Map as MapIcon, Users, Info, Share2, Check, Copy, X, ToggleLeft, ToggleRight, Plus } from "lucide-react";
+import { ArrowLeft, Map as MapIcon, Users, Info, Share2, Check, Copy, X, ToggleLeft, ToggleRight, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 
 interface ClientData {
@@ -217,6 +217,21 @@ export default function MapPageContent() {
     navigator.clipboard.writeText(url);
     setCopiedToken(token);
     setTimeout(() => setCopiedToken(null), 2000);
+  };
+
+  const deleteLink = async (token: string) => {
+    if (!confirm("Voulez-vous vraiment supprimer ce lien ?")) return;
+    setToggleLoading(token);
+    try {
+      const res = await fetch(`/api/sharelinks/${token}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        setShareLinks((prev) => prev.filter((l) => l.token !== token));
+      }
+    } finally {
+      setToggleLoading(null);
+    }
   };
 
   const selectedClient = selectedIdx !== null ? clients[selectedIdx] : null;
@@ -576,6 +591,24 @@ export default function MapPageContent() {
                         }}
                       >
                         {link.active ? <ToggleRight size={15} /> : <ToggleLeft size={15} />}
+                      </button>
+
+                      {/* Delete */}
+                      <button
+                        onClick={() => deleteLink(link.token)}
+                        disabled={toggleLoading === link.token}
+                        title="Supprimer"
+                        style={{
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          width: "32px", height: "32px",
+                          background: "rgba(239,68,68,0.1)",
+                          border: "1px solid rgba(239,68,68,0.3)",
+                          borderRadius: "7px", cursor: toggleLoading === link.token ? "not-allowed" : "pointer",
+                          color: "#ef4444",
+                          opacity: toggleLoading === link.token ? 0.5 : 1,
+                        }}
+                      >
+                        <Trash2 size={14} />
                       </button>
                     </div>
                   </div>
