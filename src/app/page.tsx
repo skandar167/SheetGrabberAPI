@@ -16,9 +16,11 @@ import {
   AlertCircle,
   Map,
   ShieldCheck,
-  LogOut,
-  User
+  User,
+  Link as LinkIcon
 } from "lucide-react";
+
+import UserLinksModal from "@/components/UserLinksModal";
 
 interface AuthUser {
   username: string;
@@ -35,6 +37,7 @@ export default function SheetGrabberApp() {
 
   // Auth state
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
+  const [linksModalOpen, setLinksModalOpen] = useState(false);
 
   useEffect(() => {
     fetch("/api/auth/me")
@@ -407,6 +410,18 @@ export default function SheetGrabberApp() {
                 <User size={13} /> {currentUser.username}
               </span>
               <button
+                onClick={() => setLinksModalOpen(true)}
+                style={{
+                  display: "inline-flex", alignItems: "center", gap: "0.35rem",
+                  fontSize: "0.78rem", color: "#4facfe",
+                  background: "rgba(79,172,254,0.1)", padding: "0.35rem 0.7rem",
+                  borderRadius: "6px", border: "1px solid rgba(79,172,254,0.2)",
+                  cursor: "pointer", fontFamily: "inherit",
+                }}
+              >
+                <LinkIcon size={13} /> Mes Liens
+              </button>
+              <button
                 onClick={handleLogout}
                 style={{
                   display: "inline-flex", alignItems: "center", gap: "0.35rem",
@@ -736,6 +751,11 @@ export default function SheetGrabberApp() {
           <span style={{ color: "var(--accent-secondary)", fontWeight: 600 }}>AOUATI Abdellatif Skander</span>
         </p>
       </footer>
+
+      {/* User Links Modal */}
+      {linksModalOpen && (
+        <UserLinksModal onClose={() => setLinksModalOpen(false)} />
+      )}
     </div>
   );
 }
