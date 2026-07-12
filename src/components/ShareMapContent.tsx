@@ -39,6 +39,7 @@ export default function ShareMapContent({ token }: ShareMapContentProps) {
 
   // Fetch share link data
   useEffect(() => {
+    if (!token) return;
     fetch(`/api/sharelinks/${token}`)
       .then(async (res) => {
         if (res.status === 410) {
