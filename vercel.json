@@ -1,7 +1,11 @@
 {
   "rewrites": [
     {
-      "source": "/api/(.*)",
+      "source": "/api/geocode",
+      "destination": "/api/index.py"
+    },
+    {
+      "source": "/api/health",
       "destination": "/api/index.py"
     }
   ]
