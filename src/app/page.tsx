@@ -16,6 +16,7 @@ import {
   AlertCircle,
   Map,
   ShieldCheck,
+  LogOut,
   User,
   Link as LinkIcon
 } from "lucide-react";
